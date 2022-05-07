@@ -7,6 +7,61 @@ static void	cpy_env(t_data *data, char **env);
 static char	*get_prompt(t_data *data);
 static int	lexing_and_parsing(t_data *data, char *read);
 
+static char	*str_append_chr(char *str, char append)
+{
+	char	*new_str;
+	int		i;
+
+	if (str == NULL)
+		return (NULL);
+	new_str = malloc(ft_strlen(str) + 2);
+	if (new_str != NULL)
+	{
+		i = 0;
+		while (str[i])
+		{
+			new_str[i] = str[i];
+			i++;
+		}
+		new_str[i] = append;
+		new_str[i + 1] = '\0';
+	}
+	free(str);
+	return (new_str);
+}
+
+static char	*minishell_gnl_free_line(char *line)
+{
+	free(line);
+	return (NULL);
+}
+
+char	*minishell_get_next_line(int fd)
+{
+	char	*line;
+	char	buffer;
+	int		check;
+
+	line = ft_strdup("");
+	if (line == NULL)
+		return (NULL);
+	check = read(fd, &buffer, 1);
+	if (check == -1 || check == 0)
+		return (minishell_gnl_free_line(line));
+	while (check > 0)
+	{
+		line = str_append_chr(line, buffer);
+		if (line == NULL)
+			return (NULL);
+		if (buffer == '\n')
+			return (line);
+		check = read(fd, &buffer, 1);
+	}
+	if (check == -1)
+		return (minishell_gnl_free_line(line));
+	return (line);
+}
+
 int	main(int argc __attribute__ ((unused)), \
 			char **argv __attribute__ ((unused)), char **env)
 {
@@ -27,10 +82,12 @@ int	main(int argc __attribute__ ((unused)), \
 		}
 		if (lexing_and_parsing(&data, read) == ERROR)
 			continue ;
-		add_history(read);
+		if (isatty(STDIN_FILENO)) // while testing
+			add_history(read);
 		free(read);
 		launch_cmds(&data);
 		free_data(&data);
+		//system("leaks minishell");
 	}
 	if (data.envp != NULL)
 		free_two_d_arr(data.envp);
@@ -39,21 +96,33 @@ int	main(int argc __attribute__ ((unused)), \
 
 static char	*get_prompt(t_data *data)
 {
-	char			*str;
-	char			*tmp;
+	char	*str;
+	char	*tmp;
 	struct termios	terminos_p;
 
-	if (tcgetattr(STDOUT_FILENO, &terminos_p) == -1)
-		err_exit(data, "Error: terminos", 15);
-	terminos_p.c_lflag &= ~(ECHOCTL);
-	if (tcsetattr(STDOUT_FILENO, TCSANOW, &terminos_p) == -1)
-		err_exit(data, "Error: terminos", 15);
-	tmp = readline("FRENO: ");
-	str = (ft_strtrim(tmp, " \t\n"));
-	free(tmp);
-	terminos_p.c_lflag |= ECHOCTL;
-	if (tcsetattr(STDOUT_FILENO, TCSANOW, &terminos_p) == -1)
-		err_exit(data, "Error: terminos", 15);
+	if (isatty(STDIN_FILENO)) //if-statement for testing only
+	{
+		if (tcgetattr(STDOUT_FILENO, &terminos_p) == -1)
+			err_exit(data, "Error: terminos", 15);
+		terminos_p.c_lflag &= ~(ECHOCTL);
+		if (tcsetattr(STDOUT_FILENO, TCSANOW, &terminos_p) == -1)
+			err_exit(data, "Error: terminos", 15);
+		tmp = readline("FRENO: ");
+		str = (ft_strtrim(tmp, " \t\n"));
+		free(tmp);
+		terminos_p.c_lflag |= ECHOCTL;
+		if (tcsetattr(STDOUT_FILENO, TCSANOW, &terminos_p) == -1)
+			err_exit(data, "Error: terminos", 15);
+	}
+	else //remove after testing
+	{
+		str = minishell_get_next_line(STDIN_FILENO);
+		int x = ft_strlen(str);
+		if (str == NULL)
+			return (NULL);
+		if (str[x - 1] == '\n')
+			str[x - 1] = '\0';
+	}
 	return (str);
 }
 
