@@ -107,7 +107,7 @@ static char	*get_prompt(t_data *data)
 		terminos_p.c_lflag &= ~(ECHOCTL);
 		if (tcsetattr(STDOUT_FILENO, TCSANOW, &terminos_p) == -1)
 			err_exit(data, "Error: terminos", 15);
-		tmp = readline("FRENO: ");
+		tmp = readline("mini_FRENO: ");
 		str = (ft_strtrim(tmp, " \t\n"));
 		free(tmp);
 		terminos_p.c_lflag |= ECHOCTL;
