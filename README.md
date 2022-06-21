@@ -21,15 +21,15 @@ The possibility to use heredocs is shown in Fig. 3. The contiguous flow of data 
 
 **Figure 4** - Commands connected by pipes and error handling.
 
-Although the error management is based on bash, the actual error codes sometimes differ. For non existing folders bash uses the error code 1 and here it is -1 (see Fig. 5).
+Although the error management is based on bash, the actual error codes sometimes differ. For non existing folders bash uses the error code 1 and mini_freno returns -1 (see Fig. 5).
 
 ![Screenshot error number](mini_error_numbers.png)
 
 **Figure 5** - Error code "-1" differs to bash's "1".
 
- For a final comparison and check every command has to be typed twice, once in a bash terminal and in mini_freno. And the output has to be compared. In oder to mitigate the work load [tjensen](https://github.com/tjensen42/42-minishell) has written a tester which includes a way to send a list of commands directly to each shell. The different error code output of mini_freno makes a comparison to bash complicated. Furthermore are some tests including a tab not possible on every machine. Sometimes it triggers the auto-complete function and is not converted correctly. That means some tests still have to be typed and compared by hand, but not as many. For development and to make sure one fix does not break other functionalities this tester was highly appreciated. A part of the tester's output is shown in Fig. 6. Due to the tab-handling and error return codes some false negative tests remain.
+ For a final comparison and check every command has to be typed twice, once in a bash terminal and in mini_freno. And the output has to be compared. In oder to mitigate the work load [tjensen](https://github.com/tjensen42/42-minishell) has written a tester which includes a way to send a list of commands directly to each shell. The different error code output of mini_freno makes a comparison to bash complicated. Furthermore are some tests including a tab not possible on every machine. Sometimes it triggers the auto-complete function and is not converted correctly. That means some tests still have to be typed and compared by hand, but only a few. During development and to make sure one fix does not break other functionalities this tester was highly appreciated. A part of the tester's output is shown in Fig. 6. Due to the tab-handling and returned error-codes some false negative test cases remain.
 
  ![Screenshot tester](mini_tester.png)
 
-**Figure 6** - Output from the tester. Bash's behavior is compared to mini_freno in the categories standard and error output, exit code If there have not been any leaks "OK" is printed.
+**Figure 6** - Output from the tester. Bash's behavior is compared to mini_freno in the categories standard and error output, exit code. If there have not been any leaks "OK" is printed.
 
